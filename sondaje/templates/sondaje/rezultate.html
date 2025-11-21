@@ -3,7 +3,7 @@
 {% block title %}Rezultate{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+<div class="max-w-6xl mx-auto px-3 sm:px-5 py-3 sm:py-5">
     
     <a href="{% url 'sondaje:index' %}" 
        class="btn-primary mb-6 group">
@@ -22,9 +22,9 @@
         </div>
 
         
-        <div style="margin-top: 1.25rem; margin-bottom: 1.25rem;">
-            <div class="px-6">
-                <div class="flex flex-wrap gap-6 justify-center">
+        <div class="mt-4 sm:mt-5 mb-4 sm:mb-5">
+            <div class="px-3 sm:px-6">
+                <div class="flex flex-wrap gap-3 sm:gap-6 justify-center">
                     <button onclick="showView('bars')" id="btn-bars" class="chart-btn active text-gray-700 font-semibold text-base transition-all duration-300 relative hover-underline cursor-pointer">
                         Bare
                     </button>
@@ -42,7 +42,7 @@
                     </button>
                 </div>
             </div>
-            <div class="px-6 pt-5">
+            <div class="px-3 sm:px-6 pt-4 sm:pt-5">
                 <div class="border-b border-purple-100"></div>
             </div>
         </div>
@@ -52,8 +52,8 @@
             {% if intrebare.optiune_set.all %}
                 
                 <div id="view-bars" class="chart-view">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-1 space-y-3">
+                    <div class="flex flex-col sm:flex-row items-start gap-4">
+                        <div class="flex-1 space-y-3 w-full sm:w-auto">
                             {% for optiune in intrebare.optiune_set.all %}
                                 {% if total_voturi > 0 %}
                                     {% widthratio optiune.voturi total_voturi 100 as percentage %}
@@ -73,8 +73,10 @@
                                     </div>
                                     
                                     <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden relative shadow-inner">
-                                        <div class="bg-gradient-to-r from-primary-500 via-primary-400 to-primary-500 h-6 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2 progress-bar min-w-[40px] shadow-md" 
-                                             data-percentage="{% if total_voturi > 0 %}{% widthratio optiune.voturi total_voturi 100 %}{% else %}0{% endif %}">
+                                        <div class="h-6 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2 progress-bar min-w-[40px] shadow-md" 
+                                             data-percentage="{% if total_voturi > 0 %}{% widthratio optiune.voturi total_voturi 100 %}{% else %}0{% endif %}"
+                                             data-index="{{ forloop.counter0 }}"
+                                             style="background: linear-gradient(90deg, var(--bar-color-start) 0%, var(--bar-color-end) 100%);">
                                             {% if total_voturi > 0 %}
                                                 {% widthratio optiune.voturi total_voturi 100 as pct %}
                                                 <span class="text-xs font-bold text-white">{{ pct }}%</span>
@@ -86,13 +88,13 @@
                                 </div>
                             {% endfor %}
                         </div>
-                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
-                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
-                                <div class="text-right mb-2">
+                        <div class="flex-shrink-0 flex flex-col items-center sm:items-end justify-center w-full sm:w-auto mt-4 sm:mt-0">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-3 sm:p-4 shadow-md w-full sm:w-auto">
+                                <div class="text-center sm:text-right mb-2">
                                     <span class="text-sm font-semibold text-gray-700">Total voturi</span>
                                 </div>
                                 <div class="text-center">
-                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                    <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
                                 </div>
                             </div>
                         </div>
@@ -101,17 +103,17 @@
 
                 
                 <div id="view-pie" class="chart-view hidden">
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1 flex justify-center">
-                            <canvas id="pieChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="flex-1 flex justify-center w-full sm:w-auto">
+                            <canvas id="pieChart" width="350" height="350" style="width: 350px; height: 350px; max-width: 100%;"></canvas>
                         </div>
-                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
-                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
-                                <div class="text-right mb-2">
+                        <div class="flex-shrink-0 flex flex-col items-center sm:items-end justify-center w-full sm:w-auto mt-4 sm:mt-0">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-3 sm:p-4 shadow-md w-full sm:w-auto">
+                                <div class="text-center sm:text-right mb-2">
                                     <span class="text-sm font-semibold text-gray-700">Total voturi</span>
                                 </div>
                                 <div class="text-center">
-                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                    <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
                                 </div>
                             </div>
                         </div>
@@ -119,17 +121,17 @@
                 </div>
 
                 <div id="view-doughnut" class="chart-view hidden">
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1 flex justify-center">
-                            <canvas id="doughnutChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="flex-1 flex justify-center w-full sm:w-auto">
+                            <canvas id="doughnutChart" width="350" height="350" style="width: 350px; height: 350px; max-width: 100%;"></canvas>
                         </div>
-                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
-                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
-                                <div class="text-right mb-2">
+                        <div class="flex-shrink-0 flex flex-col items-center sm:items-end justify-center w-full sm:w-auto mt-4 sm:mt-0">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-3 sm:p-4 shadow-md w-full sm:w-auto">
+                                <div class="text-center sm:text-right mb-2">
                                     <span class="text-sm font-semibold text-gray-700">Total voturi</span>
                                 </div>
                                 <div class="text-center">
-                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                    <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
                                 </div>
                             </div>
                         </div>
@@ -137,17 +139,17 @@
                 </div>
 
                 <div id="view-line" class="chart-view hidden">
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1 flex justify-center">
-                            <canvas id="lineChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="flex-1 flex justify-center w-full sm:w-auto">
+                            <canvas id="lineChart" width="350" height="350" style="width: 350px; height: 350px; max-width: 100%;"></canvas>
                         </div>
-                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
-                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
-                                <div class="text-right mb-2">
+                        <div class="flex-shrink-0 flex flex-col items-center sm:items-end justify-center w-full sm:w-auto mt-4 sm:mt-0">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-3 sm:p-4 shadow-md w-full sm:w-auto">
+                                <div class="text-center sm:text-right mb-2">
                                     <span class="text-sm font-semibold text-gray-700">Total voturi</span>
                                 </div>
                                 <div class="text-center">
-                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                    <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
                                 </div>
                             </div>
                         </div>
@@ -155,17 +157,17 @@
                 </div>
 
                 <div id="view-polar" class="chart-view hidden">
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1 flex justify-center">
-                            <canvas id="polarChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="flex-1 flex justify-center w-full sm:w-auto">
+                            <canvas id="polarChart" width="350" height="350" style="width: 350px; height: 350px; max-width: 100%;"></canvas>
                         </div>
-                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
-                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
-                                <div class="text-right mb-2">
+                        <div class="flex-shrink-0 flex flex-col items-center sm:items-end justify-center w-full sm:w-auto mt-4 sm:mt-0">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-3 sm:p-4 shadow-md w-full sm:w-auto">
+                                <div class="text-center sm:text-right mb-2">
                                     <span class="text-sm font-semibold text-gray-700">Total voturi</span>
                                 </div>
                                 <div class="text-center">
-                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                    <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
                                 </div>
                             </div>
                         </div>
@@ -198,25 +200,29 @@
     };
 
     const colors = [
-        'rgba(168, 85, 247, 0.8)',  // primary-500
-        'rgba(147, 51, 234, 0.8)',   // primary-600
-        'rgba(192, 132, 252, 0.8)',  // primary-400
-        'rgba(126, 34, 206, 0.8)',   // primary-700
-        'rgba(107, 33, 168, 0.8)',   // primary-800
-        'rgba(233, 213, 255, 0.8)',  // primary-200
-        'rgba(216, 180, 254, 0.8)',  // primary-300
-        'rgba(139, 92, 246, 0.8)',  // purple-500
+        'rgba(168, 85, 247, 0.8)',  // purple
+        'rgba(59, 130, 246, 0.8)',  // blue
+        'rgba(34, 197, 94, 0.8)',   // green
+        'rgba(239, 68, 68, 0.8)',   // red
+        'rgba(251, 146, 60, 0.8)',  // orange
+        'rgba(234, 179, 8, 0.8)',  // yellow
+        'rgba(168, 85, 247, 0.8)',  // purple
+        'rgba(236, 72, 153, 0.8)',  // pink
+        'rgba(14, 165, 233, 0.8)',  // sky blue
+        'rgba(20, 184, 166, 0.8)',  // teal
     ];
 
     const borderColors = [
         'rgba(168, 85, 247, 1)',
-        'rgba(147, 51, 234, 1)',
-        'rgba(192, 132, 252, 1)',
-        'rgba(126, 34, 206, 1)',
-        'rgba(107, 33, 168, 1)',
-        'rgba(233, 213, 255, 1)',
-        'rgba(216, 180, 254, 1)',
-        'rgba(139, 92, 246, 1)',
+        'rgba(59, 130, 246, 1)',
+        'rgba(34, 197, 94, 1)',
+        'rgba(239, 68, 68, 1)',
+        'rgba(251, 146, 60, 1)',
+        'rgba(234, 179, 8, 1)',
+        'rgba(168, 85, 247, 1)',
+        'rgba(236, 72, 153, 1)',
+        'rgba(14, 165, 233, 1)',
+        'rgba(20, 184, 166, 1)',
     ];
 
     let pieChart, doughnutChart, lineChart, polarChart;
@@ -426,8 +432,25 @@
     // Progress bar animation
     document.addEventListener('DOMContentLoaded', function() {
         const bars = document.querySelectorAll('.progress-bar');
-        bars.forEach(bar => {
+        const barColors = [
+            {start: 'rgba(168, 85, 247, 0.9)', end: 'rgba(147, 51, 234, 0.9)'},  // purple
+            {start: 'rgba(59, 130, 246, 0.9)', end: 'rgba(37, 99, 235, 0.9)'},  // blue
+            {start: 'rgba(34, 197, 94, 0.9)', end: 'rgba(22, 163, 74, 0.9)'},   // green
+            {start: 'rgba(239, 68, 68, 0.9)', end: 'rgba(220, 38, 38, 0.9)'},   // red
+            {start: 'rgba(251, 146, 60, 0.9)', end: 'rgba(249, 115, 22, 0.9)'}, // orange
+            {start: 'rgba(234, 179, 8, 0.9)', end: 'rgba(202, 138, 4, 0.9)'},   // yellow
+            {start: 'rgba(168, 85, 247, 0.9)', end: 'rgba(147, 51, 234, 0.9)'}, // purple
+            {start: 'rgba(236, 72, 153, 0.9)', end: 'rgba(219, 39, 119, 0.9)'}, // pink
+            {start: 'rgba(14, 165, 233, 0.9)', end: 'rgba(2, 132, 199, 0.9)'},  // sky blue
+            {start: 'rgba(20, 184, 166, 0.9)', end: 'rgba(15, 118, 110, 0.9)'}, // teal
+        ];
+        
+        bars.forEach((bar, index) => {
             const percentage = bar.getAttribute('data-percentage');
+            const colorIndex = parseInt(bar.getAttribute('data-index')) || index;
+            const colors = barColors[colorIndex % barColors.length];
+            bar.style.setProperty('--bar-color-start', colors.start);
+            bar.style.setProperty('--bar-color-end', colors.end);
             bar.style.width = '0%';
             setTimeout(() => {
                 bar.style.width = percentage + '%';

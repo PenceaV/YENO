@@ -13,54 +13,154 @@
 <body class="bg-gradient-to-br from-purple-50 via-white to-purple-50 min-h-screen flex flex-col transition-colors duration-200 font-sans">
     
     <nav class="bg-white/90 backdrop-blur-sm shadow-lg border-b border-purple-100 transition-colors duration-200">
-        <div style="padding-left: 20px; padding-right: 20px;">
+        <div style="padding-left: 10px; padding-right: 10px;" class="sm:px-5">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="{% url 'sondaje:index' %}" class="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+                    <a href="{% url 'sondaje:index' %}" class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
                         YENO
                     </a>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center space-x-2 lg:space-x-4">
                     {% if user.is_authenticated %}
-                        <span class="text-gray-700 text-sm">Bună, <span class="font-semibold">{{ user.username }}</span></span>
-                        <a href="{% url 'sondaje:index' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                        <span class="text-gray-700 text-xs lg:text-sm">Bună, <span class="font-semibold">{{ user.username }}</span></span>
+                        <a href="{% url 'sondaje:index' %}" class="text-gray-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                             Acasă
                         </a>
-                        <a href="{% url 'sondaje:echipe' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'echipe' or request.resolver_match.url_name == 'detalii_echipa' or request.resolver_match.url_name == 'creeaza_echipa' or request.resolver_match.url_name == 'alaturare_echipa' or request.resolver_match.url_name == 'gestioneaza_cereri' %}active{% endif %}">
+                        <a href="{% url 'sondaje:echipe' %}" class="text-gray-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'echipe' or request.resolver_match.url_name == 'detalii_echipa' or request.resolver_match.url_name == 'creeaza_echipa' or request.resolver_match.url_name == 'alaturare_echipa' or request.resolver_match.url_name == 'gestioneaza_cereri' %}active{% endif %}">
                             Echipe
                         </a>
-                        <a href="{% url 'sondaje:sondajele_mele' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'sondajele_mele' %}active{% endif %}">
+                        <a href="{% url 'sondaje:sondajele_mele' %}" class="text-gray-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'sondajele_mele' %}active{% endif %}">
                             Sondajele mele
                         </a>
-                        <form method="post" action="{% url 'logout' %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-primary px-4 py-2 text-sm">
-                                Deconectare
-                            </button>
-                        </form>
+                        <button type="button" class="btn-primary px-3 lg:px-4 py-2 text-xs lg:text-sm" onclick="showLogoutModal()">
+                            Deconectare
+                        </button>
                     {% elif is_guest %}
-                        <span class="text-gray-700 text-sm">Bună, <span class="font-semibold">Guest</span></span>
-                        <a href="{% url 'sondaje:index' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                        <span class="text-gray-700 text-xs lg:text-sm">Bună, <span class="font-semibold">Guest</span></span>
+                        <a href="{% url 'sondaje:index' %}" class="text-gray-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                             Acasă
                         </a>
-                        <a href="{% url 'landing' %}" class="btn-primary px-4 py-2 text-sm">
+                        <a href="{% url 'sondaje:register' %}" class="btn-primary px-3 lg:px-4 py-2 text-xs lg:text-sm">
                             Creează Cont
                         </a>
                     {% else %}
-                        <a href="{% url 'sondaje:login' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+                        <a href="{% url 'sondaje:login' %}" class="text-gray-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
                             Autentificare
                         </a>
-                        <a href="{% url 'sondaje:register' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'register' %}active{% endif %}">
+                        <a href="{% url 'sondaje:register' %}" class="text-gray-600 px-2 lg:px-3 py-2 text-xs lg:text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'register' %}active{% endif %}">
                             Înregistrare
                         </a>
-                        <a href="{% url 'sondaje:guest' %}" class="btn-primary px-4 py-2 text-sm">
+                        <a href="{% url 'sondaje:guest' %}" class="btn-primary px-3 lg:px-4 py-2 text-xs lg:text-sm">
                             Continuă ca Guest
                         </a>
                     {% endif %}
                 </div>
+                <button id="mobileMenuButton" class="md:hidden p-2 text-gray-600 hover:text-gray-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="mobileMenu" class="hidden md:hidden pb-4 border-t border-purple-100 mt-2">
+                {% if user.is_authenticated %}
+                    <div class="pt-4 space-y-2">
+                        <div class="text-gray-700 text-sm px-2 py-1">Bună, <span class="font-semibold">{{ user.username }}</span></div>
+                        <a href="{% url 'sondaje:index' %}" class="block text-gray-600 px-2 py-2 text-sm font-medium transition-colors mobile-nav-link {% if request.resolver_match.url_name == 'index' %}mobile-nav-active{% endif %}">
+                            Acasă
+                        </a>
+                        <a href="{% url 'sondaje:echipe' %}" class="block text-gray-600 px-2 py-2 text-sm font-medium transition-colors mobile-nav-link {% if request.resolver_match.url_name == 'echipe' or request.resolver_match.url_name == 'detalii_echipa' or request.resolver_match.url_name == 'creeaza_echipa' or request.resolver_match.url_name == 'alaturare_echipa' or request.resolver_match.url_name == 'gestioneaza_cereri' %}mobile-nav-active{% endif %}">
+                            Echipe
+                        </a>
+                        <a href="{% url 'sondaje:sondajele_mele' %}" class="block text-gray-600 px-2 py-2 text-sm font-medium transition-colors mobile-nav-link {% if request.resolver_match.url_name == 'sondajele_mele' %}mobile-nav-active{% endif %}">
+                            Sondajele mele
+                        </a>
+                        <button type="button" class="btn-primary w-full text-center px-4 py-2 text-sm pt-2" onclick="showLogoutModal()">
+                            Deconectare
+                        </button>
+                    </div>
+                {% elif is_guest %}
+                    <div class="pt-4 space-y-2">
+                        <div class="text-gray-700 text-sm px-2 py-1">Bună, <span class="font-semibold">Guest</span></div>
+                        <a href="{% url 'sondaje:index' %}" class="block text-gray-600 px-2 py-2 text-sm font-medium transition-colors mobile-nav-link {% if request.resolver_match.url_name == 'index' %}mobile-nav-active{% endif %}">
+                            Acasă
+                        </a>
+                        <a href="{% url 'sondaje:register' %}" class="btn-primary w-full text-center px-4 py-2 text-sm">
+                            Creează Cont
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="pt-4 space-y-2">
+                        <a href="{% url 'sondaje:login' %}" class="block text-gray-600 px-2 py-2 text-sm font-medium transition-colors mobile-nav-link {% if request.resolver_match.url_name == 'login' %}mobile-nav-active{% endif %}">
+                            Autentificare
+                        </a>
+                        <a href="{% url 'sondaje:register' %}" class="block text-gray-600 px-2 py-2 text-sm font-medium transition-colors mobile-nav-link {% if request.resolver_match.url_name == 'register' %}mobile-nav-active{% endif %}">
+                            Înregistrare
+                        </a>
+                        <a href="{% url 'sondaje:guest' %}" class="btn-primary w-full text-center px-4 py-2 text-sm">
+                            Continuă ca Guest
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </nav>
+    <script>
+        document.getElementById('mobileMenuButton')?.addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+        
+        function showLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.remove('hidden');
+        }
+        
+        function hideLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.add('hidden');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutModal = document.getElementById('logoutModal');
+            const logoutCancel = document.getElementById('logoutCancel');
+            
+            if (logoutCancel) {
+                logoutCancel.addEventListener('click', hideLogoutModal);
+            }
+            
+            if (logoutModal) {
+                logoutModal.addEventListener('click', function(e) {
+                    if (e.target === logoutModal) {
+                        hideLogoutModal();
+                    }
+                });
+            }
+            
+            const copyElements = document.querySelectorAll('.copy-code');
+            copyElements.forEach(function(element) {
+                element.addEventListener('click', function() {
+                    const code = this.getAttribute('data-code');
+                    if (code) {
+                        navigator.clipboard.writeText(code).then(function() {
+                            let feedbackElement = element.querySelector('.copy-feedback');
+                            if (!feedbackElement) {
+                                feedbackElement = document.createElement('div');
+                                feedbackElement.className = 'copy-feedback flex items-center gap-1 mt-1';
+                                element.appendChild(feedbackElement);
+                            }
+                            feedbackElement.innerHTML = '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-white text-xs">Copiat</span>';
+                            setTimeout(function() {
+                                feedbackElement.innerHTML = '';
+                            }, 2000);
+                        }).catch(function(err) {
+                            console.error('Eroare la copiere:', err);
+                            alert('Nu s-a putut copia codul. Te rugăm să îl copiezi manual.');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 
     
     <main class="flex-1 w-full">
@@ -71,10 +171,27 @@
     <footer class="bg-white/90 backdrop-blur-sm border-t border-purple-100 mt-auto transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <p class="text-center text-gray-600 text-sm">
-                © 2024 YENO
+                © 2025 YENO
             </p>
         </div>
     </footer>
+    
+    <div id="logoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Ești sigur că vrei să ieși din cont?</h3>
+            <div class="flex gap-3 justify-end">
+                <button id="logoutCancel" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                    Nu
+                </button>
+                <form id="logoutConfirmForm" method="post" action="{% url 'logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-primary px-4 py-2">
+                        Da
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 

@@ -23,12 +23,12 @@
         }
     </style>
 </head>
-<body class="bg-white min-h-screen flex items-center justify-center font-sans" style="padding: 20px;">
-    <div class="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden" style="height: 650px;">
+<body class="bg-white min-h-screen flex items-center justify-center font-sans p-3 sm:p-5">
+    <div class="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden min-h-[500px] sm:h-[650px]">
         <div class="h-full">
-            <div class="grid grid-cols-3 h-full relative">
+            <div class="grid grid-cols-1 lg:grid-cols-3 h-full relative">
             
-            <div class="col-span-2 relative overflow-hidden flex items-center justify-center" style="background-image: url('{% static 'images/background-landing.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+            <div class="col-span-1 lg:col-span-2 relative overflow-hidden flex items-center justify-center h-full" style="background-image: url('{% static 'images/background-landing.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                 
                 <div class="absolute top-8 right-8 text-white text-4xl font-light opacity-60">+</div>
                 <div class="absolute bottom-20 left-8 w-16 h-16 border-2 border-white rounded-full opacity-40"></div>
@@ -46,8 +46,8 @@
                 </div>
                 
                 
-                <div class="text-center text-white px-12 z-10 relative">
-                    <div class="backdrop-blur-md bg-black/20 rounded-2xl p-8 shadow-2xl">
+                <div class="text-center text-white px-6 sm:px-12 z-10 relative">
+                    <div class="sm:backdrop-blur-md sm:bg-black/20 rounded-2xl p-4 sm:p-8 shadow-2xl">
                         <h1 class="text-5xl font-bold mb-4" style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Alatura-te noua!</h1>
                         <p class="text-xl font-normal" style="color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Creeaza-ti contul pentru a incepe.</p>
                     </div>
@@ -55,9 +55,9 @@
             </div>
 
             
-            <div class="col-span-1 bg-white p-8 flex flex-col justify-center overflow-y-auto">
+            <div class="col-span-1 bg-white p-4 sm:p-8 flex flex-col justify-center overflow-y-auto">
                 <div class="w-full">
-                    <h2 class="text-3xl font-bold text-black mb-8">Creeaza Cont</h2>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-black mb-6 sm:mb-8">Creeaza Cont</h2>
 
                     <form method="post" class="space-y-4">
                         {% csrf_token %}
@@ -90,24 +90,46 @@
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
-                                </svg>
-                            </div>
-                            <input type="email" name="email" id="id_email" required
-                                   class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-black placeholder-black bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
-                                   placeholder="Email">
-                        </div>
-
-                        
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                 </svg>
                             </div>
                             <input type="password" name="password1" id="id_password1" required
                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-black placeholder-black bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
                                    placeholder="Parola">
+                        </div>
+                        <div id="password-requirements" class="mt-2 space-y-1 text-xs">
+                            <div class="flex items-center" id="req-length">
+                                <span class="req-icon mr-2 flex-shrink-0">
+                                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </span>
+                                <span>Parola trebuie să conțină cel puțin 8 caractere</span>
+                            </div>
+                            <div class="flex items-center" id="req-common">
+                                <span class="req-icon mr-2 flex-shrink-0">
+                                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </span>
+                                <span>Parola nu poate fi atât de comună</span>
+                            </div>
+                            <div class="flex items-center" id="req-numeric">
+                                <span class="req-icon mr-2 flex-shrink-0">
+                                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </span>
+                                <span>Parola nu poate fi doar cu numere</span>
+                            </div>
+                            <div class="flex items-center" id="req-similar">
+                                <span class="req-icon mr-2 flex-shrink-0">
+                                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </span>
+                                <span>Parola nu trebuie să fie asemănătoare cu celelalte date personale</span>
+                            </div>
                         </div>
 
                         
@@ -128,6 +150,54 @@
                             Creeaza Cont
                         </button>
                     </form>
+                    
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const passwordInput = document.getElementById('id_password1');
+                        const usernameInput = document.getElementById('id_username');
+                        
+                        function updateRequirements() {
+                            const password = passwordInput.value;
+                            const username = usernameInput ? usernameInput.value : '';
+                            
+                            // Lungime minimă 8 caractere
+                            const lengthOk = password.length >= 8;
+                            updateRequirement('req-length', lengthOk);
+                            
+                            // Nu doar numere
+                            const notOnlyNumeric = password && !/^\d+$/.test(password);
+                            updateRequirement('req-numeric', notOnlyNumeric);
+                            
+                            // Nu comună (simplificat - verifică dacă nu e "password", "12345678", etc.)
+                            const commonPasswords = ['password', '12345678', 'qwerty', 'abc123'];
+                            const notCommon = !commonPasswords.includes(password.toLowerCase());
+                            updateRequirement('req-common', notCommon || password.length === 0);
+                            
+                            // Nu similar cu username
+                            const notSimilar = !password || !username || !password.toLowerCase().includes(username.toLowerCase());
+                            updateRequirement('req-similar', notSimilar);
+                        }
+                        
+                        function updateRequirement(id, isValid) {
+                            const element = document.getElementById(id);
+                            if (element) {
+                                const icon = element.querySelector('.req-icon');
+                                if (icon) {
+                                    if (isValid) {
+                                        icon.innerHTML = '<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                                    } else {
+                                        icon.innerHTML = '<svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (passwordInput) {
+                            passwordInput.addEventListener('input', updateRequirements);
+                            if (usernameInput) usernameInput.addEventListener('input', updateRequirements);
+                        }
+                    });
+                    </script>
 
                     
                     <div class="mt-6 text-center">

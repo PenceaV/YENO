@@ -11,10 +11,16 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import Intrebare, Optiune, Vot, Echipa, CerereAlaturare
 from .forms import RegisterForm, EchipaForm, SondajForm, OptiuneFormSet
 
+def login_redirect(request):
+    if request.user.is_authenticated:
+        return redirect('sondaje:index')
+    else:
+        return redirect('sondaje:login')
+
 def index(request):
 
     if not request.user.is_authenticated and not request.session.get('is_guest', False):
-        return redirect('landing')
+        return redirect('sondaje:login')
 
     now = timezone.now()
     echipe_user = None
@@ -144,26 +150,12 @@ def voteaza(request, intrebare_id):
                 })
 
     try:
+        free_text = request.POST.get('free_text_response', '').strip()
+        optiune_id = request.POST.get('optiune')
+        optiuni_ids = request.POST.getlist('optiune')
+        
         if intrebare.tip_vot == 'single':
-            optiune_id = request.POST.get('optiune')
-            if not optiune_id:
-                raise KeyError
-            optiune_selectata = intrebare.optiune_set.get(pk=optiune_id)
-            optiune_selectata.voturi += 1
-            optiune_selectata.save()
-            
-            Vot.objects.create(
-                utilizator=request.user if request.user.is_authenticated else None,
-                intrebare=intrebare,
-                optiune_aleasa=optiune_selectata,
-                session_key=request.session.session_key if not request.user.is_authenticated else None
-            )
-        else:
-            optiuni_ids = request.POST.getlist('optiune')
-            if not optiuni_ids:
-                raise KeyError
-            
-            for optiune_id in optiuni_ids:
+            if optiune_id:
                 optiune_selectata = intrebare.optiune_set.get(pk=optiune_id)
                 optiune_selectata.voturi += 1
                 optiune_selectata.save()
@@ -174,6 +166,65 @@ def voteaza(request, intrebare_id):
                     optiune_aleasa=optiune_selectata,
                     session_key=request.session.session_key if not request.user.is_authenticated else None
                 )
+            elif intrebare.allow_free_text and free_text:
+                optiune_selectata, created = Optiune.objects.get_or_create(
+                    intrebare=intrebare,
+                    text_optiune=free_text,
+                    defaults={'is_free_text': True, 'voturi': 0}
+                )
+                
+                if not created:
+                    optiune_selectata.voturi += 1
+                    optiune_selectata.save()
+                else:
+                    optiune_selectata.voturi = 1
+                    optiune_selectata.save()
+                
+                Vot.objects.create(
+                    utilizator=request.user if request.user.is_authenticated else None,
+                    intrebare=intrebare,
+                    optiune_aleasa=optiune_selectata,
+                    session_key=request.session.session_key if not request.user.is_authenticated else None
+                )
+            else:
+                raise KeyError
+        else:
+            if optiuni_ids:
+                for optiune_id in optiuni_ids:
+                    optiune_selectata = intrebare.optiune_set.get(pk=optiune_id)
+                    optiune_selectata.voturi += 1
+                    optiune_selectata.save()
+                    
+                    Vot.objects.create(
+                        utilizator=request.user if request.user.is_authenticated else None,
+                        intrebare=intrebare,
+                        optiune_aleasa=optiune_selectata,
+                        session_key=request.session.session_key if not request.user.is_authenticated else None
+                    )
+            
+            if intrebare.allow_free_text and free_text:
+                optiune_selectata, created = Optiune.objects.get_or_create(
+                    intrebare=intrebare,
+                    text_optiune=free_text,
+                    defaults={'is_free_text': True, 'voturi': 0}
+                )
+                
+                if not created:
+                    optiune_selectata.voturi += 1
+                    optiune_selectata.save()
+                else:
+                    optiune_selectata.voturi = 1
+                    optiune_selectata.save()
+                
+                Vot.objects.create(
+                    utilizator=request.user if request.user.is_authenticated else None,
+                    intrebare=intrebare,
+                    optiune_aleasa=optiune_selectata,
+                    session_key=request.session.session_key if not request.user.is_authenticated else None
+                )
+            
+            if not optiuni_ids and not (intrebare.allow_free_text and free_text):
+                raise KeyError
     except (KeyError, Optiune.DoesNotExist):
         return render(request, 'sondaje/detalii.html', {
             'intrebare': intrebare,
@@ -200,8 +251,8 @@ def rezultate(request, intrebare_id):
     }
     return render(request, 'sondaje/rezultate.html', context)
 
-def landing_view(request):
-    
+
+def login_view(request):
     if request.user.is_authenticated:
         return redirect('sondaje:index')
     
@@ -210,18 +261,20 @@ def landing_view(request):
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
+            
             user = authenticate(username=username, password=password)
             if user is not None:
-
                 if 'is_guest' in request.session:
                     del request.session['is_guest']
                 login(request, user)
-                next_url = request.POST.get('next', '/sondaje/')
+                next_url = request.GET.get('next', '/sondaje/')
                 return redirect(next_url)
+        
+        form.add_error(None, 'Utilizatorul sau parola sunt greșite.')
     else:
         form = AuthenticationForm()
     
-    return render(request, 'sondaje/landing.html', {'form': form})
+    return render(request, 'sondaje/login.html', {'form': form})
 
 def register_view(request):
     if request.method == 'POST':
@@ -264,7 +317,17 @@ def echipe(request):
     echipele = Echipa.objects.filter(
         models.Q(creator=request.user) | models.Q(membri=request.user)
     ).distinct()
-    return render(request, 'sondaje/echipe.html', {'echipele': echipele})
+    
+    echipele_user = Echipa.objects.filter(
+        models.Q(creator=request.user) | models.Q(membri=request.user)
+    ).distinct()
+    
+    poate_crea_echipa = not echipele_user.exists()
+    
+    return render(request, 'sondaje/echipe.html', {
+        'echipele': echipele,
+        'poate_crea_echipa': poate_crea_echipa
+    })
 
 @login_required
 def detalii_echipa(request, echipa_id):
@@ -288,6 +351,46 @@ def detalii_echipa(request, echipa_id):
         'sondajele': sondajele,
         'cereri': cereri,
     })
+
+def join_echipa_by_code(request, cod):
+    if not request.user.is_authenticated:
+        return redirect('sondaje:login')
+    
+    try:
+        echipa = Echipa.objects.get(cod_unic=cod)
+        
+        if echipa.este_membru(request.user):
+            return render(request, 'sondaje/alaturare_echipa.html', {
+                'mesaj': 'Ești deja membru al acestei echipe.',
+                'mesaj_tip': 'info',
+            })
+        
+        cerere_existenta = CerereAlaturare.objects.filter(
+            echipa=echipa,
+            utilizator=request.user,
+            status='pending'
+        ).first()
+        
+        if cerere_existenta:
+            return render(request, 'sondaje/alaturare_echipa.html', {
+                'mesaj': 'Ai deja o cerere în așteptare pentru această echipă.',
+                'mesaj_tip': 'info',
+            })
+        
+        CerereAlaturare.objects.create(
+            echipa=echipa,
+            utilizator=request.user
+        )
+        
+        return render(request, 'sondaje/alaturare_echipa.html', {
+            'mesaj': f'Cererea ta de alăturare la echipa "{echipa.nume}" a fost trimisă. Creatorul echipei va primi o notificare.',
+            'mesaj_tip': 'success',
+        })
+    except Echipa.DoesNotExist:
+        return render(request, 'sondaje/alaturare_echipa.html', {
+            'mesaj': 'Codul introdus nu este valid.',
+            'mesaj_tip': 'error',
+        })
 
 @login_required
 def alaturare_echipa(request):

@@ -65,9 +65,11 @@ WSGI_APPLICATION = 'YENO.wsgi.application'
 
 import dj_database_url
 
+DATABASE_URL = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}')
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        default=DATABASE_URL,
         conn_max_age=600,
         conn_health_checks=True,
     )

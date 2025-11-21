@@ -81,6 +81,24 @@
         width: 100%;
     }
     
+    @media (max-width: 767px) {
+        .mobile-nav-link {
+            border-radius: 0.5rem;
+        }
+        
+        .mobile-nav-link:active,
+        .mobile-nav-link.mobile-nav-active {
+            background-color: rgba(168, 85, 247, 0.2);
+            color: #9333ea;
+        }
+    }
+    
+    @media (min-width: 768px) {
+        .mobile-nav-link {
+            display: none;
+        }
+    }
+    
     .btn-delete {
         background: linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(248, 113, 113, 0.95) 100%) !important;
         backdrop-filter: blur(10px) saturate(180%) !important;

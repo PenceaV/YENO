@@ -3,22 +3,25 @@
 {% block title %}Echipe{% endblock %}
 
 {% block content %}
-<div class="space-y-6" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
-    <div class="flex justify-end items-center mb-6">
-        <a href="{% url 'sondaje:alaturare_echipa' %}" class="btn-primary">
+<div class="space-y-4 sm:space-y-6 px-3 sm:px-5 py-3 sm:py-5">
+    <div class="flex justify-end items-center gap-3 mb-4 sm:mb-6 flex-wrap">
+        <a href="{% url 'sondaje:creeaza_echipa' %}" class="btn-primary text-sm sm:text-base w-full sm:w-auto text-center">
+            Creează Echipă
+        </a>
+        <a href="{% url 'sondaje:alaturare_echipa' %}" class="btn-primary text-sm sm:text-base w-full sm:w-auto text-center">
             Alătură-te unei echipe
         </a>
     </div>
 
     {% if echipele %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {% for echipa in echipele %}
             <a href="{% url 'sondaje:detalii_echipa' echipa.id %}" 
                class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-purple-100 block transform hover:scale-105 cursor-pointer">
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex-1">
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
                                 {{ echipa.nume }}
                             </h3>
                             {% if echipa.descriere %}
@@ -39,17 +42,13 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="bg-white rounded-xl shadow-md p-12 text-center border border-purple-100">
+        <div class="bg-white rounded-xl shadow-md p-6 sm:p-12 text-center border border-purple-100">
             <div class="max-w-md mx-auto">
                 <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">Nu ai echipe</h3>
                 <p class="text-gray-600 mb-6">Creează prima ta echipă pentru a începe!</p>
-                <a href="{% url 'sondaje:creeaza_echipa' %}" 
-                   class="btn-primary inline-block">
-                    Creează Echipă
-                </a>
             </div>
         </div>
     {% endif %}

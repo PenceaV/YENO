@@ -5,16 +5,13 @@ from django.db import models
 from .models import Echipa, Intrebare, Optiune
 
 class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'password1', 'password2')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({'class': 'form-input'})
-        self.fields['email'].widget.attrs.update({'class': 'form-input'})
         self.fields['password1'].widget.attrs.update({'class': 'form-input'})
         self.fields['password2'].widget.attrs.update({'class': 'form-input'})
 
@@ -42,12 +39,13 @@ class SondajForm(forms.ModelForm):
     
     class Meta:
         model = Intrebare
-        fields = ['text_intrebare', 'echipa', 'tip_vot', 'is_public', 'timp_limita_minute']
+        fields = ['text_intrebare', 'echipa', 'tip_vot', 'is_public', 'allow_free_text', 'timp_limita_minute']
         widgets = {
             'text_intrebare': forms.TextInput(attrs={'class': 'form-input'}),
             'echipa': forms.Select(attrs={'class': 'form-input'}),
             'tip_vot': forms.Select(attrs={'class': 'form-input'}),
             'is_public': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+            'allow_free_text': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
         }
     
     def __init__(self, *args, **kwargs):

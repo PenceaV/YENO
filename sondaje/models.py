@@ -66,6 +66,7 @@ class Intrebare(models.Model):
     tip_vot = models.CharField(max_length=10, choices=TIP_VOT_CHOICES, default='single')
     data_publicare = models.DateTimeField('data publicarii', default=timezone.now)
     is_public = models.BooleanField(default=True)
+    allow_free_text = models.BooleanField('Permite răspuns liber', default=False, help_text='Permite utilizatorilor să introducă răspunsuri libere în loc de opțiuni predefinite')
     timp_limita_minute = models.IntegerField('timp limita (minute)', null=True, blank=True, help_text='Lăsați gol pentru fără limită de timp')
     data_expirare = models.DateTimeField('data expirarii', null=True, blank=True)
 
@@ -103,6 +104,7 @@ class Optiune(models.Model):
     intrebare = models.ForeignKey(Intrebare, on_delete=models.CASCADE) 
     text_optiune = models.CharField(max_length=200)
     voturi = models.IntegerField(default=0)
+    is_free_text = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Optiuni"

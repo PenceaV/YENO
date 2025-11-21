@@ -3,7 +3,7 @@
 {% block title %}{{ echipa.nume }}{% endblock %}
 
 {% block content %}
-<div class="space-y-6 max-w-7xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+<div class="space-y-4 sm:space-y-6 max-w-7xl mx-auto px-3 sm:px-5 py-3 sm:py-5">
     
     <a href="{% url 'sondaje:echipe' %}" 
        class="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-all duration-300 hover:scale-105 group">
@@ -40,9 +40,27 @@
                         Gestionează cereri
                         {% endif %}
                     </a>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2">
-                        <p class="text-xs text-primary-100 mb-1">Cod unic:</p>
-                        <p class="text-lg font-mono font-bold text-white tracking-wider">{{ echipa.cod_unic }}</p>
+                    <div class="space-y-3">
+                        <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 cursor-pointer hover:bg-white/30 transition-colors copy-code" data-code="{{ echipa.cod_unic }}" title="Click pentru a copia">
+                            <p class="text-xs text-primary-100 mb-1">Cod unic:</p>
+                            <p class="text-lg font-mono font-bold text-white tracking-wider">{{ echipa.cod_unic }}</p>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2">
+                            <p class="text-xs text-primary-100 mb-1">Link de alăturare:</p>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="join-link-{{ echipa.id }}" 
+                                       value="{{ request.scheme }}://{{ request.get_host }}{% url 'sondaje:join_echipa_by_code' echipa.cod_unic %}" 
+                                       readonly
+                                       class="flex-1 text-xs font-mono text-white bg-transparent border-none outline-none">
+                                <button onclick="copyLink('join-link-{{ echipa.id }}')" 
+                                        class="text-primary-100 hover:text-white transition-colors" 
+                                        title="Copiază link">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% endif %}
@@ -53,10 +71,10 @@
     
     <div>
         {% if sondajele %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
                 {% for sondaj in sondajele %}
                 <div class="bg-white rounded-3xl shadow-bubbly hover:shadow-bubbly-lg transition-all duration-300 overflow-hidden border border-purple-100 group flex flex-col h-full">
-                    <div class="p-6 flex flex-col flex-1 h-full">
+                    <div class="p-4 sm:p-6 flex flex-col flex-1 h-full">
                         <div class="flex-1">
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">
                                 {{ sondaj.text_intrebare }}
@@ -74,14 +92,14 @@
                                 Creat de: <span class="font-semibold">{{ sondaj.creator.username|default:"Anonim" }}</span>
                             </p>
                             {% if sondaj.data_expirare %}
-                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+                            <div class="bg-white border border-gray-300 rounded-lg p-3 mb-3 countdown-container">
                                 <div class="flex items-center gap-3">
-                                    <svg class="w-4 h-4 text-orange-600 flex-shrink-0 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 text-gray-800 flex-shrink-0 mr-1 countdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <div class="flex-1">
-                                        <span class="text-xs font-semibold text-orange-700 block mb-1">Timp rămas:</span>
-                                        <span class="countdown text-lg font-bold text-orange-600" data-expires="{{ sondaj.data_expirare|date:'c' }}">--:--</span>
+                                        <span class="text-xs font-semibold text-gray-700 block mb-1">Timp rămas:</span>
+                                        <span class="countdown text-lg font-bold text-gray-900" data-expires="{{ sondaj.data_expirare|date:'c' }}" data-published="{{ sondaj.data_publicare|date:'c' }}">--:--</span>
                                     </div>
                                 </div>
                             </div>
@@ -132,9 +150,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const diff = expires - now;
             
             if (diff <= 0) {
-                element.textContent = '00:00';
+                element.textContent = 'Expirat';
+                element.classList.remove('text-gray-900', 'text-orange-600', 'animate-pulse');
                 element.classList.add('text-red-600');
-                element.classList.remove('text-orange-600');
+                const icon = element.closest('.countdown-container')?.querySelector('.countdown-icon');
+                if (icon) {
+                    icon.classList.remove('text-gray-800', 'text-orange-600');
+                    icon.classList.add('text-red-600');
+                }
+                const container = element.closest('.countdown-container, .bg-white, .bg-orange-50');
+                if (container) {
+                    container.classList.remove('bg-white', 'border-gray-300', 'bg-orange-50', 'border-orange-200');
+                    container.classList.add('bg-red-50', 'border-red-200');
+                }
                 return;
             }
             
@@ -144,9 +172,52 @@ document.addEventListener('DOMContentLoaded', function() {
             const formatted = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
             element.textContent = formatted;
             
-            if (minutes < 1) {
-                element.classList.remove('text-orange-600');
+            const container = element.closest('.countdown-container, .bg-white, .bg-orange-50');
+            
+            const publishedStr = element.getAttribute('data-published');
+            let totalDuration = 0;
+            if (publishedStr) {
+                const published = new Date(publishedStr);
+                totalDuration = expires - published;
+            }
+            
+            const icon = element.closest('.countdown-container')?.querySelector('.countdown-icon');
+            const secondsRemaining = Math.floor(diff / 1000);
+            const midpoint = totalDuration > 0 ? totalDuration / 2 : 0;
+            
+            if (secondsRemaining <= 30) {
+                element.classList.remove('text-gray-900', 'text-orange-600');
                 element.classList.add('text-red-600', 'animate-pulse');
+                if (icon) {
+                    icon.classList.remove('text-gray-800', 'text-orange-600');
+                    icon.classList.add('text-red-600');
+                }
+                if (container) {
+                    container.classList.remove('bg-white', 'border-gray-300', 'bg-orange-50', 'border-orange-200');
+                    container.classList.add('bg-red-50', 'border-red-200');
+                }
+            } else if (diff <= midpoint && totalDuration > 0) {
+                element.classList.remove('text-gray-900', 'text-red-600', 'animate-pulse');
+                element.classList.add('text-orange-600');
+                if (icon) {
+                    icon.classList.remove('text-gray-800', 'text-red-600');
+                    icon.classList.add('text-orange-600');
+                }
+                if (container) {
+                    container.classList.remove('bg-white', 'border-gray-300', 'bg-red-50', 'border-red-200');
+                    container.classList.add('bg-orange-50', 'border-orange-200');
+                }
+            } else {
+                element.classList.remove('text-orange-600', 'text-red-600', 'animate-pulse');
+                element.classList.add('text-gray-900');
+                if (icon) {
+                    icon.classList.remove('text-orange-600', 'text-red-600');
+                    icon.classList.add('text-gray-800');
+                }
+                if (container) {
+                    container.classList.remove('bg-orange-50', 'border-orange-200', 'bg-red-50', 'border-red-200');
+                    container.classList.add('bg-white', 'border-gray-300');
+                }
             }
         });
     }
@@ -154,6 +225,20 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCountdowns();
     setInterval(updateCountdowns, 1000);
 });
+</script>
+<script>
+    function copyLink(inputId) {
+        const input = document.getElementById(inputId);
+        input.select();
+        document.execCommand('copy');
+        
+        const button = input.nextElementSibling;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+        setTimeout(function() {
+            button.innerHTML = originalHTML;
+        }, 2000);
+    }
 </script>
 {% endblock %}
 

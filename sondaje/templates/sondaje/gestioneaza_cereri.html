@@ -3,7 +3,7 @@
 {% block title %}Gestionează cereri{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+<div class="max-w-4xl mx-auto px-3 sm:px-5 py-3 sm:py-5">
     <div class="mb-6">
         <a href="{% url 'sondaje:detalii_echipa' echipa.id %}" 
            class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors hover-underline">
@@ -14,13 +14,13 @@
         </a>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-bubbly p-8 border border-purple-100 mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestionează cereri</h1>
+    <div class="bg-white rounded-3xl shadow-bubbly p-4 sm:p-8 border border-purple-100 mb-4 sm:mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Gestionează cereri</h1>
         <p class="text-gray-600 mb-4">Echipă: <span class="font-semibold">{{ echipa.nume }}</span></p>
         <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
             <p class="text-sm text-primary-800">
                 <span class="font-semibold">Cod unic echipă:</span>
-                <span class="font-mono text-lg tracking-wider ml-2">{{ echipa.cod_unic }}</span>
+                <span class="font-mono text-lg tracking-wider ml-2 cursor-pointer hover:text-primary-600 copy-code" data-code="{{ echipa.cod_unic }}" title="Click pentru a copia">{{ echipa.cod_unic }}</span>
             </p>
             <p class="text-xs text-primary-600 mt-2">Distribuie acest cod utilizatorilor care doresc să se alăture echipei.</p>
         </div>
@@ -89,7 +89,7 @@
 
     
     {% if cereri_respinse %}
-    <div class="bg-white rounded-3xl shadow-bubbly p-8 border border-purple-100">
+    <div class="bg-white rounded-3xl shadow-bubbly p-4 sm:p-8 border border-purple-100">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Cereri respinse ({{ cereri_respinse.count }})</h2>
         <div class="space-y-2">
             {% for cerere in cereri_respinse %}

@@ -3,7 +3,7 @@
 {% block title %}Creează Sondaj{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+<div class="max-w-3xl mx-auto px-3 sm:px-5 py-3 sm:py-5">
     <div class="mb-6">
         <a href="{% url 'sondaje:index' %}" 
            class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors hover-underline">
@@ -15,12 +15,12 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-lg border border-purple-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-primary-600 to-primary-500 px-8 py-6">
-            <h1 class="text-4xl font-bold text-white">Creează Sondaj</h1>
-            <p class="text-primary-100 mt-1">Completează formularul de mai jos pentru a crea un sondaj nou</p>
+        <div class="bg-gradient-to-r from-primary-600 to-primary-500 px-4 sm:px-8 py-4 sm:py-6">
+            <h1 class="text-2xl sm:text-4xl font-bold text-white">Creează Sondaj</h1>
+            <p class="text-primary-100 mt-1 text-sm sm:text-base">Completează formularul de mai jos pentru a crea un sondaj nou</p>
         </div>
 
-        <form method="post" id="sondajForm" class="p-8">
+        <form method="post" id="sondajForm" class="p-4 sm:p-8">
             {% csrf_token %}
             
             {% if form.errors or formset.errors %}
@@ -89,7 +89,19 @@
                     <p class="mt-1 text-xs text-gray-500">Introdu numărul de minute după care sondajul expiră (lăsați gol pentru fără limită)</p>
                 </div>
 
-                <div class="border-t border-gray-200 pt-6">
+                <div>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="allow_free_text" id="id_allow_free_text" 
+                               {% if form.allow_free_text.value %}checked{% endif %}
+                               class="form-checkbox w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <span class="ml-3 text-sm font-semibold text-gray-700">
+                            Permite răspuns liber
+                        </span>
+                    </label>
+                    <p class="mt-1 ml-8 text-xs text-gray-500">Permite utilizatorilor să introducă răspunsuri libere pe lângă opțiunile predefinite</p>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6" id="optiuni-section">
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">Opțiuni de răspuns</h3>
@@ -119,7 +131,7 @@
                                 </svg>
                             </div>
                             <div class="flex-1 relative">
-                                <input type="text" name="{{ form.prefix }}-text_optiune" 
+                            <input type="text" name="{{ form.prefix }}-text_optiune" 
                                        value="{{ form.text_optiune.value|default:'' }}"
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all optiune-input bg-white"
                                        placeholder="Opțiune">
@@ -146,10 +158,10 @@
                    class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-center font-medium">
                     Anulează
                 </a>
-                <button type="submit" 
+            <button type="submit" 
                         class="flex-1 btn-primary">
-                    Creează Sondaj
-                </button>
+                Creează Sondaj
+            </button>
             </div>
         </form>
     </div>
@@ -298,7 +310,7 @@
                 </svg>
             </div>
             <div class="flex-1 relative">
-                <input type="text" name="form-${optiuneCount}-text_optiune" 
+            <input type="text" name="form-${optiuneCount}-text_optiune" 
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all optiune-input bg-white"
                        placeholder="Opțiune">
             </div>
@@ -350,6 +362,7 @@
     // Inițializare
     updateCount();
     updateRemoveButtons();
+    
 </script>
 {% endblock %}
 

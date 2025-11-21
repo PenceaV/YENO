@@ -3,7 +3,7 @@
 {% block title %}{{ intrebare.text_intrebare }}{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+<div class="max-w-3xl mx-auto px-3 sm:px-5 py-3 sm:py-5">
     
     <a href="{% url 'sondaje:index' %}" 
        class="inline-flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-all duration-300 hover:scale-105 group">
@@ -16,14 +16,14 @@
     
     <div class="bg-white rounded-3xl shadow-bubbly-lg border border-purple-100 overflow-hidden">
         
-        <div class="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 px-8 py-8">
-            <h1 class="text-4xl font-bold text-white mb-2">{{ intrebare.text_intrebare }}</h1>
-            <p class="text-primary-50 mt-1">Alege opțiunea ta preferată</p>
+        <div class="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 px-4 sm:px-8 py-4 sm:py-8">
+            <h1 class="text-xl sm:text-4xl font-bold text-white mb-2">{{ intrebare.text_intrebare }}</h1>
+            <p class="text-primary-50 mt-1 text-sm sm:text-base">Alege opțiunea ta preferată</p>
         </div>
 
         
         {% if mesaj_eroare %}
-        <div class="mx-8 mt-6 bg-red-50 border-l-4 border-red-500 p-5 rounded-2xl shadow-md">
+        <div class="mx-4 sm:mx-8 mt-4 sm:mt-6 bg-red-50 border-l-4 border-red-500 p-3 sm:p-5 rounded-2xl shadow-md">
             <div class="flex items-center">
                 <svg class="w-6 h-6 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
@@ -34,7 +34,7 @@
         {% endif %}
 
         {% if a_votat %}
-        <div class="mx-8 mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-2xl shadow-md">
+        <div class="mx-4 sm:mx-8 mt-4 sm:mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-3 sm:p-5 rounded-2xl shadow-md">
             <div class="flex items-center">
                 <svg class="w-6 h-6 text-yellow-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -46,23 +46,35 @@
 
         
         {% if not a_votat %}
-        <form action="{% url 'sondaje:voteaza' intrebare.id %}" method="post" class="p-8">
+        <form action="{% url 'sondaje:voteaza' intrebare.id %}" method="post" class="p-4 sm:p-8">
             {% csrf_token %}
 
             <div class="space-y-4 mb-8">
                 {% for optiune in intrebare.optiune_set.all %}
-                <label for="optiune{{ forloop.counter }}" 
-                       class="flex items-center p-5 border-2 border-purple-100 rounded-2xl cursor-pointer hover:border-primary-500 hover:bg-gradient-to-r hover:from-primary-50 hover:to-primary-100 transition-all duration-300 group bg-white shadow-md hover:shadow-lg transform hover:scale-105">
-                    <input type="{% if intrebare.tip_vot == 'multiple' %}checkbox{% else %}radio{% endif %}"
-                           name="optiune"
-                           id="optiune{{ forloop.counter }}"
-                           value="{{ optiune.id }}"
-                           class="w-6 h-6 text-primary-600 border-gray-300 focus:ring-primary-500 focus:ring-2 cursor-pointer rounded">
-                    <span class="ml-4 text-gray-900 font-semibold text-lg group-hover:bg-gradient-to-r group-hover:from-primary-600 group-hover:to-primary-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
-                        {{ optiune.text_optiune }}
-                    </span>
-                </label>
+                    {% if not optiune.is_free_text %}
+                    <label for="optiune{{ forloop.counter }}" 
+                           class="flex items-center p-5 border-2 border-purple-100 rounded-2xl cursor-pointer hover:border-primary-500 hover:bg-gradient-to-r hover:from-primary-50 hover:to-primary-100 transition-all duration-300 group bg-white shadow-md hover:shadow-lg transform hover:scale-105">
+                        <input type="{% if intrebare.tip_vot == 'multiple' %}checkbox{% else %}radio{% endif %}"
+                               name="optiune"
+                               id="optiune{{ forloop.counter }}"
+                               value="{{ optiune.id }}"
+                               class="w-6 h-6 text-primary-600 border-gray-300 focus:ring-primary-500 focus:ring-2 cursor-pointer rounded">
+                        <span class="ml-4 text-gray-900 font-semibold text-lg group-hover:bg-gradient-to-r group-hover:from-primary-600 group-hover:to-primary-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                            {{ optiune.text_optiune }}
+                        </span>
+                    </label>
+                    {% endif %}
                 {% endfor %}
+                {% if intrebare.allow_free_text %}
+                    <div class="border-t-2 border-purple-200 pt-4 mt-4">
+                        <label for="free_text_response" class="block text-sm font-semibold text-gray-700 mb-3">
+                            Sau introdu răspunsul tău personal:
+                        </label>
+                        <textarea name="free_text_response" id="free_text_response" rows="4"
+                                  class="w-full px-4 py-3 border-2 border-purple-100 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white resize-none shadow-md"
+                                  placeholder="Scrie răspunsul tău aici..."></textarea>
+                    </div>
+                {% endif %}
             </div>
 
             
