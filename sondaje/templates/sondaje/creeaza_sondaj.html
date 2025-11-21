@@ -1,0 +1,355 @@
+{% extends 'sondaje/base.html' %}
+
+{% block title %}Creează Sondaj{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+    <div class="mb-6">
+        <a href="{% url 'sondaje:index' %}" 
+           class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors hover-underline">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Înapoi la sondaje
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg border border-purple-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 to-primary-500 px-8 py-6">
+            <h1 class="text-4xl font-bold text-white">Creează Sondaj</h1>
+            <p class="text-primary-100 mt-1">Completează formularul de mai jos pentru a crea un sondaj nou</p>
+        </div>
+
+        <form method="post" id="sondajForm" class="p-8">
+            {% csrf_token %}
+            
+            {% if form.errors or formset.errors %}
+            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <p class="text-red-700 font-medium mb-2">Te rugăm să corectezi erorile de mai jos:</p>
+                <ul class="text-red-600 text-sm space-y-1">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>• {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% if formset.errors %}
+                        <li>• Verifică că ai cel puțin 2 opțiuni de răspuns completate</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="space-y-6">
+                <div>
+                    <label for="id_text_intrebare" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Întrebare <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="text_intrebare" id="id_text_intrebare" required
+                           value="{{ form.text_intrebare.value|default:'' }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                           placeholder="Ex: Care este culoarea ta preferată?">
+                    <p class="mt-1 text-xs text-gray-500">Introdu întrebarea pe care vrei să o pui în sondaj</p>
+                </div>
+
+                <div>
+                    <label for="id_tip_vot" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Tip de vot <span class="text-red-500">*</span>
+                    </label>
+                    <select name="tip_vot" id="id_tip_vot" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white">
+                        <option value="single" {% if form.tip_vot.value == 'single' %}selected{% endif %}>Un singur răspuns</option>
+                        <option value="multiple" {% if form.tip_vot.value == 'multiple' %}selected{% endif %}>Mai multe răspunsuri</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Alege dacă utilizatorii pot selecta unul sau mai multe răspunsuri</p>
+                </div>
+
+                <div>
+                    <label for="id_echipa" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Echipă <span class="text-gray-400 text-xs">(opțional)</span>
+                    </label>
+                    <select name="echipa" id="id_echipa"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white">
+                        <option value="">Public - toată lumea poate vedea</option>
+                        {% for echipa in form.echipa.field.queryset %}
+                            <option value="{{ echipa.id }}" {% if form.echipa.value == echipa.id|stringformat:"s" %}selected{% endif %}>{{ echipa.nume }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Dacă selectezi o echipă, sondajul va fi vizibil doar pentru membrii echipei</p>
+                </div>
+
+                <div>
+                    <label for="id_timp_limita_minute" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Timp limită <span class="text-gray-400 text-xs">(opțional)</span>
+                    </label>
+                    <input type="number" name="timp_limita_minute" id="id_timp_limita_minute" 
+                           value="{{ form.timp_limita_minute.value|default:'' }}"
+                           min="1"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all bg-white"
+                           placeholder="Ex: 5, 10, 30, 60...">
+                    <p class="mt-1 text-xs text-gray-500">Introdu numărul de minute după care sondajul expiră (lăsați gol pentru fără limită)</p>
+                </div>
+
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Opțiuni de răspuns</h3>
+                            <p class="text-xs text-gray-500 mt-1">Minim 2 opțiuni necesare <span class="text-red-500">*</span></p>
+                        </div>
+                        <button type="button" id="add-optiune" 
+                                class="inline-flex items-center px-4 py-2 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 transition-colors text-sm font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Adaugă opțiune
+                        </button>
+                    </div>
+                    <div id="optiuni-container" class="space-y-3">
+                        {{ formset.management_form }}
+                        {% for form in formset %}
+                        <div class="optiune-item flex items-center gap-3 bg-gray-50 rounded-lg p-2 border border-gray-200 hover:border-primary-300 transition-all cursor-move" 
+                             draggable="true" data-index="{{ forloop.counter0 }}">
+                            <div class="drag-handle flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing" style="display: flex; align-items: center; justify-content: center;">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="display: block;">
+                                    <circle cx="9" cy="5" r="1.5"></circle>
+                                    <circle cx="9" cy="12" r="1.5"></circle>
+                                    <circle cx="9" cy="19" r="1.5"></circle>
+                                    <circle cx="15" cy="5" r="1.5"></circle>
+                                    <circle cx="15" cy="12" r="1.5"></circle>
+                                    <circle cx="15" cy="19" r="1.5"></circle>
+                                </svg>
+                            </div>
+                            <div class="flex-1 relative">
+                                <input type="text" name="{{ form.prefix }}-text_optiune" 
+                                       value="{{ form.text_optiune.value|default:'' }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all optiune-input bg-white"
+                                       placeholder="Opțiune">
+                            </div>
+                            {{ form.id }}
+                            <button type="button" class="remove-optiune flex-shrink-0 w-10 h-10 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg transition-all" 
+                                    style="display: flex; align-items: center; justify-content: center;"
+                                    {% if forloop.counter <= 2 %}disabled title="Trebuie să ai minim 2 opțiuni"{% endif %}>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: block;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p id="optiuni-count" class="mt-3 text-xs text-gray-500">
+                        <span id="current-count">{{ formset.total_form_count }}</span> opțiuni adăugate
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-gray-200 flex gap-4">
+                <a href="{% url 'sondaje:index' %}" 
+                   class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-center font-medium">
+                    Anulează
+                </a>
+                <button type="submit" 
+                        class="flex-1 btn-primary">
+                    Creează Sondaj
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let optiuneCount = {{ formset.total_form_count }};
+    const totalFormsInput = document.querySelector('#id_form-TOTAL_FORMS');
+    const container = document.getElementById('optiuni-container');
+    const countDisplay = document.getElementById('current-count');
+    
+    function updatePlaceholders() {
+        const visibleItems = Array.from(container.querySelectorAll('.optiune-item:not([style*="display: none"])'));
+        visibleItems.forEach((item, index) => {
+            const input = item.querySelector('.optiune-input');
+            if (input) {
+                input.placeholder = `Opțiune ${index + 1}`;
+            }
+        });
+    }
+    
+    function updateCount() {
+        const visibleItems = container.querySelectorAll('.optiune-item:not([style*="display: none"])').length;
+        countDisplay.textContent = visibleItems;
+        updatePlaceholders();
+    }
+    
+    function updateRemoveButtons() {
+        const items = container.querySelectorAll('.optiune-item:not([style*="display: none"])');
+        items.forEach((item) => {
+            const removeBtn = item.querySelector('.remove-optiune');
+            if (items.length <= 2) {
+                removeBtn.disabled = true;
+                removeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                removeBtn.disabled = false;
+                removeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    }
+    
+    let draggedElement = null;
+    let draggedOverElement = null;
+    
+    // Drag and Drop handlers
+    container.addEventListener('dragstart', function(e) {
+        if (e.target.closest('.optiune-item')) {
+            draggedElement = e.target.closest('.optiune-item');
+            draggedElement.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', draggedElement.innerHTML);
+        }
+    });
+    
+    container.addEventListener('dragend', function(e) {
+        if (draggedElement) {
+            draggedElement.style.opacity = '1';
+            draggedElement = null;
+        }
+        // Remove drag-over styling from all items
+        container.querySelectorAll('.optiune-item').forEach(item => {
+            item.classList.remove('border-primary-500', 'bg-primary-50');
+        });
+    });
+    
+    container.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        const targetItem = e.target.closest('.optiune-item');
+        if (targetItem && targetItem !== draggedElement && !targetItem.style.display.includes('none')) {
+            // Remove styling from all items
+            container.querySelectorAll('.optiune-item').forEach(item => {
+                item.classList.remove('border-primary-500', 'bg-primary-50');
+            });
+            // Add styling to current target
+            targetItem.classList.add('border-primary-500', 'bg-primary-50');
+            draggedOverElement = targetItem;
+        }
+    });
+    
+    container.addEventListener('dragleave', function(e) {
+        const targetItem = e.target.closest('.optiune-item');
+        if (targetItem && targetItem !== draggedOverElement) {
+            targetItem.classList.remove('border-primary-500', 'bg-primary-50');
+        }
+    });
+    
+    container.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (draggedElement && draggedOverElement && draggedElement !== draggedOverElement) {
+            const visibleItems = Array.from(container.querySelectorAll('.optiune-item:not([style*="display: none"])'));
+            const draggedIndex = visibleItems.indexOf(draggedElement);
+            const targetIndex = visibleItems.indexOf(draggedOverElement);
+            
+            if (draggedIndex < targetIndex) {
+                container.insertBefore(draggedElement, draggedOverElement.nextSibling);
+            } else {
+                container.insertBefore(draggedElement, draggedOverElement);
+            }
+            
+            updatePlaceholders();
+        }
+        
+        // Clean up
+        container.querySelectorAll('.optiune-item').forEach(item => {
+            item.classList.remove('border-primary-500', 'bg-primary-50');
+        });
+        draggedElement = null;
+        draggedOverElement = null;
+    });
+    
+    // Prevent drag on input fields and buttons
+    container.addEventListener('mousedown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.closest('.remove-optiune') || e.target.closest('.drag-handle')) {
+            const item = e.target.closest('.optiune-item');
+            if (item && (e.target.tagName === 'INPUT' || e.target.closest('.remove-optiune'))) {
+                item.draggable = false;
+            }
+        }
+    });
+    
+    container.addEventListener('mouseup', function(e) {
+        container.querySelectorAll('.optiune-item').forEach(item => {
+            if (!item.style.display.includes('none')) {
+                item.draggable = true;
+            }
+        });
+    });
+    
+    document.getElementById('add-optiune').addEventListener('click', function() {
+        const newForm = document.createElement('div');
+        newForm.className = 'optiune-item flex items-center gap-3 bg-gray-50 rounded-lg p-2 border border-gray-200 hover:border-primary-300 transition-all cursor-move';
+        newForm.draggable = true;
+        newForm.innerHTML = `
+            <div class="drag-handle flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing" style="display: flex; align-items: center; justify-content: center;">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="display: block;">
+                    <circle cx="9" cy="5" r="1.5"></circle>
+                    <circle cx="9" cy="12" r="1.5"></circle>
+                    <circle cx="9" cy="19" r="1.5"></circle>
+                    <circle cx="15" cy="5" r="1.5"></circle>
+                    <circle cx="15" cy="12" r="1.5"></circle>
+                    <circle cx="15" cy="19" r="1.5"></circle>
+                </svg>
+            </div>
+            <div class="flex-1 relative">
+                <input type="text" name="form-${optiuneCount}-text_optiune" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all optiune-input bg-white"
+                       placeholder="Opțiune">
+            </div>
+            <input type="hidden" name="form-${optiuneCount}-id" id="id_form-${optiuneCount}-id">
+            <input type="hidden" name="form-${optiuneCount}-DELETE" id="id_form-${optiuneCount}-DELETE">
+            <button type="button" class="remove-optiune flex-shrink-0 w-10 h-10 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg transition-all" style="display: flex; align-items: center; justify-content: center;">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: block;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </button>
+        `;
+        container.appendChild(newForm);
+        optiuneCount++;
+        totalFormsInput.value = optiuneCount;
+        updateCount();
+        updateRemoveButtons();
+        
+        // Focus pe noul input
+        newForm.querySelector('input[type="text"]').focus();
+    });
+    
+    // Event delegation pentru ștergere
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-optiune')) {
+            const btn = e.target.closest('.remove-optiune');
+            if (btn.disabled) return;
+            
+            const item = btn.closest('.optiune-item');
+            const visibleItems = container.querySelectorAll('.optiune-item:not([style*="display: none"])').length;
+            
+            if (visibleItems <= 2) {
+                alert('Trebuie să ai minim 2 opțiuni!');
+                return;
+            }
+            
+            // Marchează pentru ștergere sau ascunde direct
+            const deleteInput = item.querySelector('input[name$="-DELETE"]');
+            if (deleteInput) {
+                deleteInput.value = 'on';
+            }
+            item.style.display = 'none';
+            item.draggable = false;
+            
+            updateCount();
+            updateRemoveButtons();
+        }
+    });
+    
+    // Inițializare
+    updateCount();
+    updateRemoveButtons();
+</script>
+{% endblock %}
+

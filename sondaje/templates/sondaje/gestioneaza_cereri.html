@@ -1,0 +1,106 @@
+{% extends 'sondaje/base.html' %}
+
+{% block title %}Gestionează cereri{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+    <div class="mb-6">
+        <a href="{% url 'sondaje:detalii_echipa' echipa.id %}" 
+           class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors hover-underline">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Înapoi la echipă
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-bubbly p-8 border border-purple-100 mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestionează cereri</h1>
+        <p class="text-gray-600 mb-4">Echipă: <span class="font-semibold">{{ echipa.nume }}</span></p>
+        <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
+            <p class="text-sm text-primary-800">
+                <span class="font-semibold">Cod unic echipă:</span>
+                <span class="font-mono text-lg tracking-wider ml-2">{{ echipa.cod_unic }}</span>
+            </p>
+            <p class="text-xs text-primary-600 mt-2">Distribuie acest cod utilizatorilor care doresc să se alăture echipei.</p>
+        </div>
+    </div>
+
+    
+    <div class="bg-white rounded-3xl shadow-bubbly p-8 border border-purple-100 mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Cereri în așteptare ({{ cereri_pending.count }})</h2>
+        
+        {% if cereri_pending %}
+        <div class="space-y-4">
+            {% for cerere in cereri_pending %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex justify-between items-center">
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-900">{{ cerere.utilizator.username }}</p>
+                        <p class="text-sm text-gray-500">Cerere trimisă: {{ cerere.data_cerere|date:"d M Y, H:i" }}</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <form method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="cerere_id" value="{{ cerere.id }}">
+                            <input type="hidden" name="actiune" value="approve">
+                            <button type="submit" class="btn-delete px-4 py-2 text-sm" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.95) 0%, rgba(134, 239, 172, 0.95) 100%) !important; border-color: rgba(255, 255, 255, 0.2) !important;">
+                                <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Accept
+                            </button>
+                        </form>
+                        <form method="post" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="cerere_id" value="{{ cerere.id }}">
+                            <input type="hidden" name="actiune" value="reject">
+                            <button type="submit" class="btn-delete px-4 py-2 text-sm">
+                                <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Respinge
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-8">Nu există cereri în așteptare.</p>
+        {% endif %}
+    </div>
+
+    
+    {% if cereri_aprobate %}
+    <div class="bg-white rounded-3xl shadow-bubbly p-8 border border-purple-100 mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Cereri aprobate ({{ cereri_aprobate.count }})</h2>
+        <div class="space-y-2">
+            {% for cerere in cereri_aprobate %}
+            <div class="border border-green-200 bg-green-50 rounded-lg p-3">
+                <p class="font-semibold text-gray-900">{{ cerere.utilizator.username }}</p>
+                <p class="text-xs text-gray-500">Aprobată: {{ cerere.data_raspuns|date:"d M Y, H:i" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    
+    {% if cereri_respinse %}
+    <div class="bg-white rounded-3xl shadow-bubbly p-8 border border-purple-100">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Cereri respinse ({{ cereri_respinse.count }})</h2>
+        <div class="space-y-2">
+            {% for cerere in cereri_respinse %}
+            <div class="border border-red-200 bg-red-50 rounded-lg p-3">
+                <p class="font-semibold text-gray-900">{{ cerere.utilizator.username }}</p>
+                <p class="text-xs text-gray-500">Respinsă: {{ cerere.data_raspuns|date:"d M Y, H:i" }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

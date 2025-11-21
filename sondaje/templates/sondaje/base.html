@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}YENO{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-purple-50 min-h-screen flex flex-col transition-colors duration-200 font-sans">
+    
+    <nav class="bg-white/90 backdrop-blur-sm shadow-lg border-b border-purple-100 transition-colors duration-200">
+        <div style="padding-left: 20px; padding-right: 20px;">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'sondaje:index' %}" class="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+                        YENO
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <span class="text-gray-700 text-sm">Bună, <span class="font-semibold">{{ user.username }}</span></span>
+                        <a href="{% url 'sondaje:index' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                            Acasă
+                        </a>
+                        <a href="{% url 'sondaje:echipe' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'echipe' or request.resolver_match.url_name == 'detalii_echipa' or request.resolver_match.url_name == 'creeaza_echipa' or request.resolver_match.url_name == 'alaturare_echipa' or request.resolver_match.url_name == 'gestioneaza_cereri' %}active{% endif %}">
+                            Echipe
+                        </a>
+                        <a href="{% url 'sondaje:sondajele_mele' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'sondajele_mele' %}active{% endif %}">
+                            Sondajele mele
+                        </a>
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-primary px-4 py-2 text-sm">
+                                Deconectare
+                            </button>
+                        </form>
+                    {% elif is_guest %}
+                        <span class="text-gray-700 text-sm">Bună, <span class="font-semibold">Guest</span></span>
+                        <a href="{% url 'sondaje:index' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                            Acasă
+                        </a>
+                        <a href="{% url 'landing' %}" class="btn-primary px-4 py-2 text-sm">
+                            Creează Cont
+                        </a>
+                    {% else %}
+                        <a href="{% url 'sondaje:login' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+                            Autentificare
+                        </a>
+                        <a href="{% url 'sondaje:register' %}" class="text-gray-600 px-3 py-2 text-sm font-medium transition-colors hover-underline {% if request.resolver_match.url_name == 'register' %}active{% endif %}">
+                            Înregistrare
+                        </a>
+                        <a href="{% url 'sondaje:guest' %}" class="btn-primary px-4 py-2 text-sm">
+                            Continuă ca Guest
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    
+    <main class="flex-1 w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+    
+    <footer class="bg-white/90 backdrop-blur-sm border-t border-purple-100 mt-auto transition-colors duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p class="text-center text-gray-600 text-sm">
+                © 2024 YENO
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
+

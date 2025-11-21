@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YENO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        .purple-gradient {
+            background: radial-gradient(ellipse at top, #a855f7 0%, #9333ea 30%, #7e22ce 70%, #6b21a8 100%);
+        }
+        .abstract-pattern {
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,100 Q50,50 100,100 T200,100' stroke='white' stroke-width='2' fill='none' opacity='0.15'/%3E%3Cpath d='M0,120 Q60,60 120,120 T240,120' stroke='white' stroke-width='1.5' fill='none' opacity='0.12'/%3E%3Cpath d='M0,80 Q40,40 80,80 T160,80' stroke='white' stroke-width='1.8' fill='none' opacity='0.18'/%3E%3C/svg%3E"),
+                url("data:image/svg+xml,%3Csvg width='150' height='150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,75 Q30,30 75,75 T150,75' stroke='white' stroke-width='1.5' fill='none' opacity='0.1'/%3E%3Cpath d='M0,90 Q35,45 90,90 T180,90' stroke='white' stroke-width='1.2' fill='none' opacity='0.08'/%3E%3C/svg%3E");
+            background-size: 400px 400px, 300px 300px;
+            background-position: -50px -50px, 200px 150px;
+            background-repeat: repeat;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex items-center justify-center font-sans" style="padding: 20px;">
+    
+    <div class="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden" style="height: 650px;">
+        <div class="h-full">
+            <div class="grid grid-cols-3 h-full relative">
+                
+                <div class="col-span-2 relative overflow-hidden flex items-center justify-center" style="background-image: url('{% static 'images/background-landing.png' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                    
+                    <div class="absolute top-8 right-8 text-white text-4xl font-light opacity-60">+</div>
+                    <div class="absolute bottom-20 left-8 w-16 h-16 border-2 border-white rounded-full opacity-40"></div>
+                    <div class="absolute bottom-32 right-16 text-white text-3xl font-light opacity-50">+</div>
+                    
+                    
+                    <div class="absolute right-0 top-0 bottom-0 w-px">
+                        <div class="h-full flex flex-col items-center justify-start pt-12 space-y-2">
+                            <div class="w-1 h-1 bg-white rounded-full opacity-60"></div>
+                            <div class="w-1 h-1 bg-white rounded-full opacity-60"></div>
+                            <div class="w-1 h-1 bg-white rounded-full opacity-60"></div>
+                            <div class="w-1 h-1 bg-white rounded-full opacity-60"></div>
+                            <div class="w-1 h-1 bg-white rounded-full opacity-60"></div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="text-center text-white px-12 z-10 relative">
+                        <div class="backdrop-blur-md bg-black/20 rounded-2xl p-8 shadow-2xl">
+                            <h1 class="text-5xl font-bold mb-4" style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Bun venit inapoi!</h1>
+                            <p class="text-xl font-normal" style="color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Poti sa te autentifici pentru a accesa contul tau existent.</p>
+                        </div>
+                    </div>
+                </div>
+
+            
+                <div class="col-span-1 bg-white p-8 flex flex-col justify-center">
+                    <div class="w-full">
+                        <h2 class="text-3xl font-bold text-black mb-8">Autentificare</h2>
+
+                        <form method="post" action="{% url 'sondaje:login' %}" class="space-y-5">
+                            {% csrf_token %}
+                            
+                            {% if form.errors %}
+                            <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded mb-4">
+                                <p class="text-black text-sm font-medium">
+                                    {% for error in form.non_field_errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                    {% if not form.non_field_errors %}
+                                        Te rugam sa verifici datele de autentificare.
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% endif %}
+
+                            
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                                <input type="text" name="username" id="id_username" required autofocus
+                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-black placeholder-black bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                                       placeholder="Utilizator sau email">
+                            </div>
+
+                            
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                </div>
+                                <input type="password" name="password" id="id_password" required
+                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-black placeholder-black bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-primary-600"
+                                       placeholder="Parolă">
+                            </div>
+
+                            
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-600">
+                                    <span class="ml-2 text-sm text-black">Tine-ma minte</span>
+                                </label>
+                                <a href="#" class="text-sm text-black hover:text-primary-600">Ai uitat parola?</a>
+                            </div>
+
+                            
+                            <button type="submit" 
+                                    class="btn-primary w-full">
+                                Autentificare
+                            </button>
+                        </form>
+
+                        
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-black">
+                                Nou aici? <a href="{% url 'sondaje:register' %}" class="text-black hover:text-primary-700 font-semibold underline">Creează un Cont</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

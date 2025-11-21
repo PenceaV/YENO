@@ -1,0 +1,443 @@
+{% extends 'sondaje/base.html' %}
+
+{% block title %}Rezultate{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+    
+    <a href="{% url 'sondaje:index' %}" 
+       class="btn-primary mb-6 group">
+        <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Înapoi la lista de sondaje
+    </a>
+
+    
+    <div class="bg-white rounded-3xl shadow-bubbly-lg border border-purple-100 overflow-hidden">
+        
+        <div class="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 px-6 py-4">
+            <h1 class="text-4xl font-bold text-white mb-2">Rezultatele Sondajului</h1>
+            <p class="text-primary-50">{{ intrebare.text_intrebare }}</p>
+        </div>
+
+        
+        <div style="margin-top: 1.25rem; margin-bottom: 1.25rem;">
+            <div class="px-6">
+                <div class="flex flex-wrap gap-6 justify-center">
+                    <button onclick="showView('bars')" id="btn-bars" class="chart-btn active text-gray-700 font-semibold text-base transition-all duration-300 relative hover-underline cursor-pointer">
+                        Bare
+                    </button>
+                    <button onclick="showView('pie')" id="btn-pie" class="chart-btn text-gray-700 font-semibold text-base transition-all duration-300 relative hover-underline cursor-pointer">
+                        Pie Chart
+                    </button>
+                    <button onclick="showView('doughnut')" id="btn-doughnut" class="chart-btn text-gray-700 font-semibold text-base transition-all duration-300 relative hover-underline cursor-pointer">
+                        Donut
+                    </button>
+                    <button onclick="showView('line')" id="btn-line" class="chart-btn text-gray-700 font-semibold text-base transition-all duration-300 relative hover-underline cursor-pointer">
+                        Linie
+                    </button>
+                    <button onclick="showView('polar')" id="btn-polar" class="chart-btn text-gray-700 font-semibold text-base transition-all duration-300 relative hover-underline cursor-pointer">
+                        Polar
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 pt-5">
+                <div class="border-b border-purple-100"></div>
+            </div>
+        </div>
+
+        
+        <div class="p-4">
+            {% if intrebare.optiune_set.all %}
+                
+                <div id="view-bars" class="chart-view">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-1 space-y-3">
+                            {% for optiune in intrebare.optiune_set.all %}
+                                {% if total_voturi > 0 %}
+                                    {% widthratio optiune.voturi total_voturi 100 as percentage %}
+                                {% else %}
+                                    {% with percentage=0 %}{% endwith %}
+                                {% endif %}
+                                
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-semibold text-gray-900">{{ optiune.text_optiune }}</span>
+                                        <span class="text-base font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+                                            {{ optiune.voturi }} 
+                                            <span class="text-xs font-normal text-gray-500">
+                                                {% if optiune.voturi == 1 %}vot{% else %}voturi{% endif %}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="w-full bg-gray-200 rounded-full h-6 overflow-hidden relative shadow-inner">
+                                        <div class="bg-gradient-to-r from-primary-500 via-primary-400 to-primary-500 h-6 rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2 progress-bar min-w-[40px] shadow-md" 
+                                             data-percentage="{% if total_voturi > 0 %}{% widthratio optiune.voturi total_voturi 100 %}{% else %}0{% endif %}">
+                                            {% if total_voturi > 0 %}
+                                                {% widthratio optiune.voturi total_voturi 100 as pct %}
+                                                <span class="text-xs font-bold text-white">{{ pct }}%</span>
+                                            {% else %}
+                                                <span class="text-xs font-bold text-white">0%</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
+                                <div class="text-right mb-2">
+                                    <span class="text-sm font-semibold text-gray-700">Total voturi</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="view-pie" class="chart-view hidden">
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1 flex justify-center">
+                            <canvas id="pieChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
+                                <div class="text-right mb-2">
+                                    <span class="text-sm font-semibold text-gray-700">Total voturi</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-doughnut" class="chart-view hidden">
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1 flex justify-center">
+                            <canvas id="doughnutChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
+                                <div class="text-right mb-2">
+                                    <span class="text-sm font-semibold text-gray-700">Total voturi</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-line" class="chart-view hidden">
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1 flex justify-center">
+                            <canvas id="lineChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
+                                <div class="text-right mb-2">
+                                    <span class="text-sm font-semibold text-gray-700">Total voturi</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-polar" class="chart-view hidden">
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1 flex justify-center">
+                            <canvas id="polarChart" width="350" height="350" style="width: 350px; height: 350px;"></canvas>
+                        </div>
+                        <div class="flex-shrink-0 flex flex-col items-end justify-center">
+                            <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl p-4 shadow-md">
+                                <div class="text-right mb-2">
+                                    <span class="text-sm font-semibold text-gray-700">Total voturi</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">{{ total_voturi }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <p class="text-gray-600 text-lg">Nu există opțiuni pentru acest sondaj.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    // Chart data
+    const chartData = {
+        labels: [
+            {% for optiune in intrebare.optiune_set.all %}
+            "{{ optiune.text_optiune }}"{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        values: [
+            {% for optiune in intrebare.optiune_set.all %}
+            {{ optiune.voturi }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    };
+
+    const colors = [
+        'rgba(168, 85, 247, 0.8)',  // primary-500
+        'rgba(147, 51, 234, 0.8)',   // primary-600
+        'rgba(192, 132, 252, 0.8)',  // primary-400
+        'rgba(126, 34, 206, 0.8)',   // primary-700
+        'rgba(107, 33, 168, 0.8)',   // primary-800
+        'rgba(233, 213, 255, 0.8)',  // primary-200
+        'rgba(216, 180, 254, 0.8)',  // primary-300
+        'rgba(139, 92, 246, 0.8)',  // purple-500
+    ];
+
+    const borderColors = [
+        'rgba(168, 85, 247, 1)',
+        'rgba(147, 51, 234, 1)',
+        'rgba(192, 132, 252, 1)',
+        'rgba(126, 34, 206, 1)',
+        'rgba(107, 33, 168, 1)',
+        'rgba(233, 213, 255, 1)',
+        'rgba(216, 180, 254, 1)',
+        'rgba(139, 92, 246, 1)',
+    ];
+
+    let pieChart, doughnutChart, lineChart, polarChart;
+
+    function initCharts() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isDark ? '#e5e7eb' : '#374151';
+        const gridColor = isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(229, 231, 235, 0.5)';
+
+        const commonOptions = {
+            responsive: false,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: textColor,
+                        font: {
+                            family: 'Poppins',
+                            size: 14,
+                            weight: '500'
+                        },
+                        padding: 15,
+                        usePointStyle: true,
+                    }
+                },
+                tooltip: {
+                    backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    titleColor: textColor,
+                    bodyColor: textColor,
+                        borderColor: 'rgba(147, 51, 234, 0.5)',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 12,
+                    font: {
+                        family: 'Poppins',
+                        size: 13
+                    }
+                }
+            }
+        };
+
+        // Pie Chart
+        const pieCtx = document.getElementById('pieChart');
+        if (pieCtx) {
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        data: chartData.values,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: {
+                            ...commonOptions.plugins.legend,
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Doughnut Chart
+        const doughnutCtx = document.getElementById('doughnutChart');
+        if (doughnutCtx) {
+            doughnutChart = new Chart(doughnutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        data: chartData.values,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: {
+                            ...commonOptions.plugins.legend,
+                            position: 'right'
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // Line Chart
+        const lineCtx = document.getElementById('lineChart');
+        if (lineCtx) {
+            lineChart = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Voturi',
+                        data: chartData.values,
+                        borderColor: 'rgba(147, 51, 234, 1)',
+                        backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(147, 51, 234, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: 'Poppins',
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: gridColor
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: 'Poppins',
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: gridColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Polar Chart
+        const polarCtx = document.getElementById('polarChart');
+        if (polarCtx) {
+            polarChart = new Chart(polarCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        data: chartData.values,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        r: {
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: 'Poppins',
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: gridColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function showView(viewType) {
+        // Hide all views
+        document.querySelectorAll('.chart-view').forEach(view => {
+            view.classList.add('hidden');
+        });
+
+        // Remove active class from all buttons
+        document.querySelectorAll('.chart-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected view
+        document.getElementById('view-' + viewType).classList.remove('hidden');
+
+        // Add active class to selected button
+        const activeBtn = document.getElementById('btn-' + viewType);
+        activeBtn.classList.add('active');
+    }
+
+    // Progress bar animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const bars = document.querySelectorAll('.progress-bar');
+        bars.forEach(bar => {
+            const percentage = bar.getAttribute('data-percentage');
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = percentage + '%';
+            }, 100);
+        });
+
+        // Initialize charts
+        if (chartData.labels.length > 0) {
+            initCharts();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+  "name": "tema",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tailwindcss --input=css/styles.css --output=../static/css/styles.css --minify",
+    "dev": "tailwindcss --input=css/styles.css --output=../static/css/styles.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
+

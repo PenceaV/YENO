@@ -1,0 +1,66 @@
+{% extends 'sondaje/base.html' %}
+
+{% block title %}Alătură-te unei echipe{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto" style="padding-left: 20px; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;">
+    <div class="mb-6">
+        <a href="{% url 'sondaje:echipe' %}" 
+           class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors hover-underline">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Înapoi la echipe
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-bubbly p-8 border border-purple-100">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Alătură-te unei echipe</h1>
+        <p class="text-gray-600 mb-6">Introdu codul unic de 6 cifre al echipei la care vrei să te alături.</p>
+
+        {% if mesaj %}
+        <div class="mb-6 p-4 rounded-lg {% if mesaj_tip == 'error' %}bg-red-50 border-l-4 border-red-500{% elif mesaj_tip == 'success' %}bg-green-50 border-l-4 border-green-500{% else %}bg-blue-50 border-l-4 border-blue-500{% endif %}">
+            <p class="{% if mesaj_tip == 'error' %}text-red-700{% elif mesaj_tip == 'success' %}text-green-700{% else %}text-blue-700{% endif %} font-medium">{{ mesaj }}</p>
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <label for="cod" class="block text-sm font-semibold text-gray-700 mb-3">
+                    Cod unic echipă <span class="text-red-500">*</span>
+                </label>
+                <input type="text" 
+                       name="cod" 
+                       id="cod" 
+                       required
+                       maxlength="6"
+                       pattern="[0-9]{6}"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-center text-2xl font-mono tracking-widest"
+                       placeholder="000000"
+                       autocomplete="off">
+                <p class="mt-2 text-xs text-gray-500">Introdu codul de 6 cifre primit de la creatorul echipei</p>
+            </div>
+
+            <button type="submit" class="btn-primary w-full">
+                Trimite cerere de alăturare
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codInput = document.getElementById('cod');
+    
+    // Permite doar cifre
+    codInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    
+    // Focus pe input
+    codInput.focus();
+});
+</script>
+{% endblock %}
+
