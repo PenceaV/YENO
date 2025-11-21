@@ -13,7 +13,7 @@ services:
       - key: DEBUG
         value: False
       - key: ALLOWED_HOSTS
-        value: yeno.onrender.com
+        value: yeno.onrender.com,*.onrender.com
       - key: PYTHON_VERSION
         value: 3.11.0
 
