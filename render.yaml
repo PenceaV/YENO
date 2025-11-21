@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: yeno
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      cd tema/static_src && npm install && npm run build && cd ../..
+      python manage.py collectstatic --noinput
+    startCommand: gunicorn YENO.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: yeno.onrender.com
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
